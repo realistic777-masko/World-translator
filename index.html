@@ -25,7 +25,7 @@
 
     .container {
       width: 100%;
-      max-width: 800px;
+      max-width: 850px;
       background: white;
       padding: 30px;
       border-radius: 20px;
@@ -43,6 +43,19 @@
       margin-bottom: 25px;
     }
 
+    .languages {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: bold;
+    }
+
     textarea {
       width: 100%;
       height: 180px;
@@ -56,10 +69,10 @@
     select {
       width: 100%;
       padding: 14px;
-      margin-top: 15px;
       border: 1px solid #ddd;
       border-radius: 10px;
       font-size: 16px;
+      background: white;
     }
 
     button {
@@ -85,6 +98,13 @@
       border-radius: 12px;
       min-height: 100px;
       font-size: 17px;
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 600px) {
+      .languages {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -99,19 +119,52 @@
       Translate text into the language you understand.
     </p>
 
-    <textarea id="textInput"
-      placeholder="Type or paste text here..."></textarea>
+    <div class="languages">
 
-    <select id="language">
-      <option value="en">English</option>
-      <option value="zh">Chinese</option>
-      <option value="fr">French</option>
-      <option value="es">Spanish</option>
-      <option value="de">German</option>
-      <option value="ar">Arabic</option>
-      <option value="ja">Japanese</option>
-      <option value="ko">Korean</option>
-    </select>
+      <div>
+        <label for="fromLanguage">From</label>
+
+        <select id="fromLanguage">
+          <option value="en">English</option>
+          <option value="zh-CN">Chinese</option>
+          <option value="fr">French</option>
+          <option value="es">Spanish</option>
+          <option value="de">German</option>
+          <option value="ar">Arabic</option>
+          <option value="ja">Japanese</option>
+          <option value="ko">Korean</option>
+          <option value="pt">Portuguese</option>
+          <option value="ru">Russian</option>
+          <option value="it">Italian</option>
+          <option value="hi">Hindi</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="toLanguage">To</label>
+
+        <select id="toLanguage">
+          <option value="zh-CN">Chinese</option>
+          <option value="en">English</option>
+          <option value="fr">French</option>
+          <option value="es">Spanish</option>
+          <option value="de">German</option>
+          <option value="ar">Arabic</option>
+          <option value="ja">Japanese</option>
+          <option value="ko">Korean</option>
+          <option value="pt">Portuguese</option>
+          <option value="ru">Russian</option>
+          <option value="it">Italian</option>
+          <option value="hi">Hindi</option>
+        </select>
+      </div>
+
+    </div>
+
+    <textarea
+      id="textInput"
+      placeholder="Type or paste your text here..."
+    ></textarea>
 
     <button onclick="translateText()">
       Translate
@@ -124,14 +177,29 @@
   </div>
 
   <script>
+
     async function translateText() {
 
-      const text = document.getElementById("textInput").value;
-      const language = document.getElementById("language").value;
-      const result = document.getElementById("result");
+      const text =
+        document.getElementById("textInput").value;
+
+      const fromLanguage =
+        document.getElementById("fromLanguage").value;
+
+      const toLanguage =
+        document.getElementById("toLanguage").value;
+
+      const result =
+        document.getElementById("result");
 
       if (!text.trim()) {
-        result.innerText = "Please enter some text first.";
+        result.innerText =
+          "Please enter some text first.";
+        return;
+      }
+
+      if (fromLanguage === toLanguage) {
+        result.innerText = text;
         return;
       }
 
@@ -142,23 +210,38 @@
         const url =
           "https://api.mymemory.translated.net/get?q=" +
           encodeURIComponent(text) +
-          "&langpair=en|" +
-          language;
+          "&langpair=" +
+          encodeURIComponent(fromLanguage) +
+          "|" +
+          encodeURIComponent(toLanguage);
 
         const response = await fetch(url);
 
         const data = await response.json();
 
-        result.innerText =
-          data.responseData.translatedText;
+        if (
+          data.responseData &&
+          data.responseData.translatedText
+        ) {
+
+          result.innerText =
+            data.responseData.translatedText;
+
+        } else {
+
+          result.innerText =
+            "Translation could not be completed.";
+
+        }
 
       } catch (error) {
 
         result.innerText =
-          "Sorry, translation failed. Please try again.";
+          "Something went wrong. Please try again.";
 
       }
     }
+
   </script>
 
 </body>
